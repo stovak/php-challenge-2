@@ -1,9 +1,19 @@
 <?php
 // YOUR NAME AND EMAIL GO HERE
 
+/**
+ * @param $request
+ * @param $secret
+ *
+ * @return $payload|false
+ */
 function parse_request($request, $secret)
 {
-    // YOUR CODE GOES HERE
+   list($receivedSignature, $payload) = explode(".", $request);
+   $payload = base64_decode($payload);
+   $receivedSignature = base64_decode($receivedSignature);
+   $expectedSignature = hash_hmac('sha256', $payload, $secret);
+   return (($expectedSignature == $receivedSignature) ? json_decode($payload, true) : false );
 }
 
 function dates_with_at_least_n_scores($pdo, $n)
