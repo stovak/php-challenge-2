@@ -56,7 +56,25 @@ function users_with_top_score_on_date($pdo, $date)
    return $toReturn;
 }
 
+/**
+ * @param $pdo
+ * @param $user_id
+ * @param $n
+ *
+ * @return $array
+ */
 function dates_when_user_was_in_top_n($pdo, $user_id, $n)
 {
-    // YOUR CODE GOES HERE
+   $toReturn = [];
+   $stmt = $pdo->prepare("select date as INTOPDATE from scores where user_id = :user_id and score in (select distinct score from scores where user_id in (select user_id from scores where date = INTOPDATE order by score desc limit :n) and date = INTOPDATE) order by date desc");
+   $stmt->bindParam(":user_id", $user_id);
+   $stmt->bindParam(":n", $n);
+   $results = $stmt->execute();
+   if ($results) {
+      $toReturn = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $toReturn = array_map(function($value){
+         return $value['INTOPDATE'];
+      }, $toReturn);
+   }
+   return $toReturn;
 }
